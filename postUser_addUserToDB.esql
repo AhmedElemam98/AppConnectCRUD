@@ -1,0 +1,26 @@
+
+
+CREATE COMPUTE MODULE postCustomer_addCustomerToDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE bodyData REFERENCE TO InputRoot.JSON.Data;
+		-- First name , last name and age are required data for customer and id auto generated..
+		IF bodyData.firstname IS NULL THEN
+			THROW USER EXCEPTION VALUES(400, 'Missing firstname');
+		END IF;
+		
+		IF  bodyData.lastname IS NULL THEN
+			THROW USER EXCEPTION VALUES(400, 'Missing lastname');
+		END IF;
+	
+		IF  bodyData.age IS NULL  THEN
+			THROW USER EXCEPTION VALUES(400, 'Missing age');
+		END IF;
+				
+		DECLARE customerData ROW;		
+		SET customerData = PASSTHRU('INSERT INTO appconnectschema.customers (firstname, lastname, age) VALUES (?, ?, ?);' VALUES(bodyData.firstname, bodyData.lastname, bodyData.age));
+		SET OutputRoot.JSON.Data.message ='User added successfully';
+		RETURN TRUE;
+	END;
+
+END MODULE;

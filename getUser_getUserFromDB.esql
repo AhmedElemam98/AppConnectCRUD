@@ -1,0 +1,49 @@
+
+
+CREATE COMPUTE MODULE getCustomer_getCustomerFromDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		DECLARE customerId CHARACTER InputLocalEnvironment.HTTP.Input.QueryString.id;
+		--If User doesn't Enter Id as aquery param , then fetsh all customers..
+		IF customerId IS NULL THEN
+			SET Environment.result[] = PASSTHRU('SELECT * FROM appconnectschema.customers');			
+			IF Environment.result[1].id IS NULL THEN			
+				THROW USER EXCEPTION VALUES(400, 'No Data Found for customers');
+			ELSE
+				CALL fetch_all_Customers();
+			END IF;
+		--If User Enter Id as aquery param , then show only customer with that id..
+		ELSE
+			DECLARE customerData ROW ;
+			SET customerData = PASSTHRU('SELECT * FROM appconnectschema.customers where id = ?;' VALUES(customerId));
+			IF EXISTS(customerData.id[]) THEN
+				SET OutputRoot.JSON.Data = customerData;
+			ELSE
+				THROW USER EXCEPTION VALUES(400, 'Id is not correct');
+			END IF;
+		END IF;
+		
+		RETURN TRUE;
+	END;
+
+	
+	CREATE PROCEDURE fetch_all_Customers() 
+	BEGIN
+		CREATE LASTCHILD OF OutputRoot DOMAIN ('JSON');
+		CREATE FIELD OutputRoot.JSON.Data.Customers IDENTITY (JSON.Array)Customers;
+		DECLARE outRef REFERENCE TO OutputRoot.JSON.Data.Customers;
+		DECLARE I INTEGER 1;
+		DECLARE inRef REFERENCE TO Environment.result[1];
+		WHILE (LASTMOVE(inRef)) DO
+			SET outRef.Item[I].id = inRef.id;
+			SET outRef.Item[I].firstname = inRef.firstname;
+			SET outRef.Item[I].lastname = inRef.lastname;
+			SET outRef.Item[I].age = inRef.age;	
+			SET I = I+1;
+			MOVE inRef NEXTSIBLING;
+		END WHILE;
+
+	END;
+END MODULE;

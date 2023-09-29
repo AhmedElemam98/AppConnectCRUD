@@ -1,0 +1,105 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "title" : "CustomersApi",
+    "version" : "1.0.0",
+    "description" : "CustomersApi"
+  },
+  "paths" : {
+    "/customer" : {
+      "get" : {
+        "operationId" : "getCustomer",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "produces" : [ "application/json" ],
+        "description" : "Retrieve customer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "query",
+          "type" : "integer",
+          "description" : "The request query for the operation",
+          "required" : true
+        } ]
+      },
+      "post" : {
+        "operationId" : "postCustomer",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful."
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Insert a customer",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "type" : "string"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        }, {
+          "name" : "firstname",
+          "in" : "query",
+          "type" : "string",
+          "required" : true
+        }, {
+          "name" : "lastname",
+          "in" : "query",
+          "type" : "string",
+          "required" : true
+        }, {
+          "name" : "age",
+          "in" : "query",
+          "type" : "integer",
+          "required" : true
+        } ]
+      },
+      "put" : {
+        "operationId" : "putCustomer",
+        "responses" : {
+          "200" : {
+            "description" : "The operation was successful."
+          }
+        },
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "description" : "Update customer",
+        "parameters" : [ {
+          "name" : "body",
+          "in" : "body",
+          "schema" : {
+            "type" : "string"
+          },
+          "description" : "The request body for the operation",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "query",
+          "type" : "number",
+          "required" : true
+        }, {
+          "name" : "age",
+          "in" : "query",
+          "type" : "number"
+        }, {
+          "name" : "firstname",
+          "in" : "query",
+          "type" : "string"
+        }, {
+          "name" : "lastname",
+          "in" : "query",
+          "type" : "string"
+        } ]
+      }
+    }
+  },
+  "basePath" : "/customersapi/"
+}

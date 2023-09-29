@@ -1,0 +1,48 @@
+
+
+CREATE COMPUTE MODULE putCustomer_putCustomerInDB
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE bodyData REFERENCE TO InputRoot.JSON.Data;
+		
+		DECLARE customer ROW;
+
+		--You must enter id which u wanna update data for
+		IF NOT EXISTS(bodyData.id[]) THEN
+			THROW USER EXCEPTION VALUES(400, 'id is required');
+		END IF;
+		
+		--One of [First namee or last name or age] are required params!
+		IF  NOT (EXISTS(bodyData.firstname[]) OR EXISTS (bodyData.lastname[]) OR EXISTS (bodyData.age[])) THEN
+			THROW USER EXCEPTION VALUES(400, 'First name or last name or age are required params!');
+		END IF;		
+		
+		--Fetch customer data from db 
+		SET customer = PASSTHRU('SELECT * FROM appconnectschema.customers WHERE id = ?' VALUES(bodyData.id));
+		
+		--If Id is Exist in db		
+		IF EXISTS(customer.id[]) THEN
+			IF EXISTS(bodyData.firstname[]) THEN
+				SET customer.firstname = bodyData.firstname;
+			END IF;
+			IF  EXISTS(bodyData.lastname[]) THEN
+				SET customer.lastname = bodyData.lastname;
+			END IF;
+			IF  EXISTS(bodyData.age[]) THEN
+				SET customer.age = bodyData.age;
+			END IF;
+				
+			DECLARE query ROW;
+			SET query = PASSTHRU('UPDATE appconnectschema.customers SET firstname = ?, lastname = ?, age = ? WHERE (id = ?);' VALUES(customer.firstname,customer.lastname,customer.age,customer.id ));
+			SET OutputRoot.JSON.Data.message ='User updated successfully';
+		
+		--If Id isn't Exist in db
+		ELSE
+			THROW USER EXCEPTION VALUES(400, 'Customer id is not correct');
+		END IF;
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;
